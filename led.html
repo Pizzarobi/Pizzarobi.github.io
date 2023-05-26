@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Schanzer LED System</title>
+  <style>
+    #status {
+      width: 100%;
+      height: 100px; /* Double the height */
+      padding: 10px;
+      box-sizing: border-box;
+      position: fixed;
+      bottom: 0;
+      background-color: #f0f0f0;
+      overflow: auto;
+      border-top: 1px solid #ccc;
+    }
+
+    #url-field {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .error {
+      background-color: #ffcccc;
+    }
+  </style>
+</head>
+<body onload="validateIP()">
+  <h1>Schanzer LED System</h1>
+
+  <div class="form-group">
+    <label for="ip">IP Address:</label>
+    <input type="text" id="ip" placeholder="Enter IP address" oninput="validateIP()">
+  </div>
+
+  <div class="form-group">
+    <label for="pattern">Pattern:</label>
+    <select id="pattern">
+      <option value="0">0 - Color Change</option>
+      <option value="1">1 - Rainbow Wave</option>
+      <option value="2">2 - Running Light Sync</option>
+      <option value="3">3 - Running Pixel Trail</option>
+      <option value="4">4 - Pixels Off</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="brightness">Brightness:</label>
+    <input type="range" id="brightness" min="0" max="255">
+  </div>
+
+  <div class="form-group">
+    <label for="schanzerBlue">Schanzer Blau:</label>
+    <input type="checkbox" id="schanzerBlue">
+  </div>
+
+  <div class="form-group">
+    <label for="color">Color:</label>
+    <input type="color" id="color">
+  </div>
+
+  <button onclick="sendRequest()">Send</button>
+  <button onclick="clearStatus()">Clear</button>
+
+  <input type="text" id="url-field" readonly>
+
+  <div id="status"></div>
+
+  <script>
+    function validateIP() {
+      var ipInput = document.getElementById("ip");
+      if (ipInput.value.trim() === "") {
+        ipInput.classList.add("error");
+      } else {
+        ipInput.classList.remove("error");
+      }
+    }
+
+    // Check IP Address field on page load
+    document.addEventListener("DOMContentLoaded", function() {
+      validateIP();
+    });
+
+    function sendRequest() {
+      var ip = document.getElementById("ip").value;
+      var pattern = document.getElementById("pattern").value;
+      var brightness = document.getElementById("brightness").value;
+      var colorInput = document.getElementById("color");
+      var color = colorInput.value.substring(1); // Remove the '#' character
+
+      // Check if Schanzer Blau checkbox is checked
+      var schanzerBlueCheckbox = document.getElementById("schanzerBlue");
+      if (schanzerBlueCheckbox.checked) {
+        color = "009EE0";
+      }
+
+      var url = "http://" + ip + "/led?pattern=" + pattern + "&brightness=" + brightness + "&color=" + encodeURIComponent(color);
+
+      var urlField = document.getElementById("url-field");
+      urlField.value = url;
+
+      var statusField = document.getElementById("status");
+      statusField.textContent = "Sending request...";
+
+      fetch(url)
+        .then(function(response) {
+          if (response.ok) {
+            statusField.textContent = "Request sent successfully!";
+          } else {
+            statusField.textContent = "Request failed!";
+          }
+        })
+        .catch(function(error) {
+          statusField.textContent = "Error: " + error;
+        });
+    }
+
+    function clearStatus() {
+      var statusField = document.getElementById("status");
+      statusField.textContent = "";
+
+      var urlField = document.getElementById("url-field");
+      urlField.value = "";
+    }
+  </script>
+</body>
+</html>
