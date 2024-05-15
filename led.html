@@ -156,17 +156,29 @@
       var statusField = document.getElementById("status");
       statusField.textContent = "Sending request...";
 
-      fetch(url)
-        .then(function(response) {
-          if (response.ok) {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
             statusField.textContent = "Request sent successfully!";
           } else {
             statusField.textContent = "Request failed!";
           }
-        })
-        .catch(function(error) {
-          statusField.textContent = "Error: " + error;
-        });
+        }
+      };
+
+      // fetch(url)
+      //   .then(function(response) {
+      //     if (response.ok) {
+      //       statusField.textContent = "Request sent successfully!";
+      //     } else {
+      //       statusField.textContent = "Request failed!";
+      //     }
+      //   })
+      //   .catch(function(error) {
+      //     statusField.textContent = "Error: " + error;
+      //   });
     }
 
     function clearStatus() {
